@@ -54,6 +54,10 @@ sudo cp -rf overlay-firmware/etc $TARGET_ROOTFS_DIR/
 sudo cp -rf overlay-firmware/lib $TARGET_ROOTFS_DIR/usr/
 sudo cp -rf overlay-firmware/usr $TARGET_ROOTFS_DIR/
 
+if [ -d "../modules" ]; then
+    sudo cp -r ../modules/lib/modules $TARGET_ROOTFS_DIR/lib
+fi
+
 # adb
 if [ "$ARCH" == "armhf" ]; then
 	sudo cp -rf overlay-debug/usr/local/share/adb/adbd-32 $TARGET_ROOTFS_DIR/usr/local/bin/adbd
@@ -150,6 +154,15 @@ else
 	echo "won't install qt"
 fi
 
+apt-get remove mesa-common-dev -y
+apt-get install nano pciutils
+
+apt-get remove gnome-shell gnome-session* -y
+apt-get install xfce4 lightdm -y
+apt-get install --reinstall libgdk-pixbuf2.0-0
+
+dpkg -i /packages/libdrm/libdrm-rockchip*_arm64.deb
+apt-get install -f -y
 
 #---------------TODO: USE DEB-------------- 
 #---------------Setup Graphics-------------- 
@@ -177,6 +190,9 @@ cd /
 #---------------Custom Script-------------- 
 systemctl mask systemd-networkd-wait-online.service
 systemctl mask NetworkManager-wait-online.service
+systemctl mask wpa_supplicant-nl80211@.service
+systemctl mask wpa_supplicant-wired@.service
+systemctl mask wpa_supplicant.service
 rm /lib/systemd/system/wpa_supplicant@.service
 
 #---------------Clean-------------- 
